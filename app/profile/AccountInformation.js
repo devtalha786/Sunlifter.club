@@ -1,113 +1,275 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Image from 'next/image'
-import PasswordInput from './PasswordInput'
-import PhysicalInformation from './PhysicalInformation'
-import ExerciseOneRepMaxes from './ExerciseOneRepMaxes'
-import SocialMediaLink from './SocialMediaLink'
-import PlateConfiguration from './PlateConfiguration'
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import PasswordInput from './PasswordInput';
+import PhysicalInformation from './PhysicalInformation';
+import ExerciseOneRepMaxes from './ExerciseOneRepMaxes';
+import SocialMediaLink from './SocialMediaLink';
+import PlateConfiguration from './PlateConfiguration';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { registerUser } from '../store/user/userThunk';
+import toast from 'react-hot-toast';
 
 const AccountInformation = () => {
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
+	const dispatch = useDispatch();
+	const router = useRouter();
+	const [name, setName] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
+	const [imagePreview, setImagePreview] = useState('/profile-image.png');
+	const [imageError, setImageError] = useState(false);
+	// const [profileFile, setProfileFile] = useState(null);
+	const [selectedDate, setSelectedDate] = useState('');
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const inputRef = useRef(null);
+	const datepickerRef = useRef(null);
 
-    const handlePasswordChange = (e) => setPassword(e.target.value)
-    const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value)
+	// Handle date selection from the date picker
+	const handleDateChange = date => {
+		setSelectedDate(date);
+		setShowDatePicker(false);
+	};
 
-    const [imagePreview, setImagePreview] = useState('/profile-image.png')
-    const [imageError, setImageError] = useState(false)
+	// Handle icon click (show date picker)
+	const handleIconClick = e => {
+		e.stopPropagation();
+		setShowDatePicker(prev => !prev);
+	};
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreview(reader.result)
-                setImageError(false)
-            }
-            reader.readAsDataURL(file)
-        }
-    }
+	// Handle input field focus (show date picker)
+	// const handleFocus = () => {
+	// 	setShowDatePicker(true);
+	// };
 
-    const handleImageError = () => {
-        setImageError(true)
-    }
+	// Handle input field blur (hide date picker)
+	// const handleBlur = () => {
+	// 	setTimeout(() => {
+	// 		setShowDatePicker(false);
+	// 	}, 200);
+	// };
 
-    return (
-        <div>
-            <div className='border-b border-[#D9D9D9] pb-6 md:pb-10 lg:pb-[60px] mb-6 md:mb-10 lg:mb-[60px]'>
-                <h1 className='text-[#060606] text-[24px] md:text-[32px] md:leading-[40px] font-semibold tracking-[0.01em] mb-6 md:mb-[50px]'>Account Information</h1>
+	// Hide the date picker when clicking outside
+	useEffect(() => {
+		const handleClickOutside = event => {
+			if (
+				datepickerRef.current &&
+				!datepickerRef.current.contains(event.target) &&
+				inputRef.current &&
+				!inputRef.current.contains(event.target)
+			) {
+				setShowDatePicker(false); // Close the date picker if clicked outside
+			}
+		};
 
-                {/* Profile Edit */}
-                <div className="relative w-[107px] h-[107px]">
-                    {imageError ? (
-                        <div className="w-full h-full rounded-full flex items-center justify-center">
-                            <img src='/assets/profile-image.png' alt='profile-image' />
-                        </div>
-                    ) : (
-                        <Image
-                            src={imagePreview}
-                            alt="Profile"
-                            width={107}
-                            height={107}
-                            className="rounded-full object-cover w-full h-full"
-                            onError={handleImageError}
-                        />
-                    )}
-                    <label htmlFor="profile-upload" className="absolute bottom-0 right-0 ">
-                        <Image src='/assets/profile.svg' alt='profile' width={38} height={38} />
-                        <input
-                            type="file"
-                            id="profile-upload"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                        />
-                    </label>
-                </div>
+		document.addEventListener('mousedown', handleClickOutside); // Listen for clicks outside
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside); // Cleanup event listener on unmount
+		};
+	}, []);
 
-                <div className='mt-5 md:mt-8 flex items-center justify-between sm:flex-row flex-col gap-3 sm:gap-5 md:gap-[30px]'>
-                    <div className='w-full flex flex-col gap-2'>
-                        <label className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'>User Name</label>
-                        <input type='text' placeholder='Enter User Name' className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]' />
-                    </div>
-                    <div className='w-full flex flex-col gap-2'>
-                        <label className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'>Email Address</label>
-                        <input type='email' placeholder='Enter Email Address' className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]' />
-                    </div>
-                </div>
+	// Handle form field changes
+	const handleName = e => setName(e.target.value);
+	const handleEmail = e => setEmail(e.target.value);
+	const handlePasswordChange = e => setPassword(e.target.value);
+	const handleConfirmPasswordChange = e => setConfirmPassword(e.target.value);
+	const handleImageUpload = e => {
+		const file = e.target.files[0];
+		if (file) {
+			// setProfileFile(file);
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result);
+				setImageError(false);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
 
-                <div className='mt-3 sm:mt-5 md:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 md:gap-[30px]'>
-                    <PasswordInput
-                        label="Password"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={handlePasswordChange}
-                    />
-                    <PasswordInput
-                        label="Confirm Password"
-                        placeholder="Enter Confirm Password"
-                        value={confirmPassword}
-                        onChange={handleConfirmPasswordChange}
-                    />
-                    <div className='w-full flex flex-col gap-2'>
-                        <label className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'>Date of birth</label>
-                        <div className='w-full h-[45px] sm:h-[50px] bg-white rounded-[60px] px-5 flex items-center gap-2'>
-                            <input type='text' placeholder='DD/MM/YYYY' className='w-full h-full outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]' />
-                            <Image src='/icons/calendar.svg' alt='calendar' width={20} height={20} />
-                        </div>
-                    </div>
-                </div>
+	const handleImageError = () => {
+		setImageError(true);
+	};
 
-            </div>
-            <PhysicalInformation />
-            <ExerciseOneRepMaxes/>
-            <SocialMediaLink/>
-            <PlateConfiguration/>
-        </div>
-    )
-}
+	const handleSubmit = async e => {
+		e.preventDefault();
+		if (!name || !email || !password || !confirmPassword || !selectedDate) {
+			alert('All fields are required');
+			return;
+		}
+		if (password !== confirmPassword) {
+			alert('Passwords do not match');
+			return;
+		}
+		const formData = {
+			name,
+			email,
+			selectedDate,
+			// profilePicture: profileFile,
+		};
+		dispatch(
+			registerUser({
+				payload: { ...formData, password },
+				onSuccess: () => router.push('/login'),
+			})
+		);
+	};
 
-export default AccountInformation
+	return (
+		<div>
+			<form
+				onSubmit={handleSubmit}
+				className='border-b border-[#D9D9D9] pb-6 md:pb-10 lg:pb-[60px] mb-6 md:mb-10 lg:mb-[60px]'
+			>
+				<h1 className='text-[#060606] text-[24px] md:text-[32px] md:leading-[40px] font-semibold tracking-[0.01em] mb-6 md:mb-[50px]'>
+					Account Information
+				</h1>
 
+				{/* Profile Edit */}
+				<div className='relative w-[107px] h-[107px]'>
+					{imageError ? (
+						<div className='w-full h-full rounded-full flex items-center justify-center'>
+							<img
+								src='/assets/profile-image.png'
+								alt='profile-image'
+							/>
+						</div>
+					) : (
+						<Image
+							src={imagePreview}
+							alt='Profile'
+							width={107}
+							height={107}
+							className='rounded-full object-cover w-full h-full'
+							onError={handleImageError}
+						/>
+					)}
+					<label
+						htmlFor='profile-upload'
+						className='absolute bottom-0 right-0 '
+					>
+						<Image
+							src='/assets/profile.svg'
+							alt='profile'
+							width={38}
+							height={38}
+						/>
+						<input
+							type='file'
+							id='profile-upload'
+							className='hidden'
+							accept='image/*'
+							onChange={handleImageUpload}
+						/>
+					</label>
+				</div>
+
+				<div className='mt-5 md:mt-8 flex items-center justify-between sm:flex-row flex-col gap-3 sm:gap-5 md:gap-[30px]'>
+					<div className='w-full flex flex-col gap-2'>
+						<label className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'>
+							User Name
+						</label>
+						<input
+							value={name}
+							onChange={handleName}
+							type='text'
+							placeholder='Enter User Name'
+							className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
+						/>
+					</div>
+					<div className='w-full flex flex-col gap-2'>
+						<label className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'>
+							Email Address
+						</label>
+						<input
+							value={email}
+							onChange={handleEmail}
+							type='email'
+							placeholder='Enter Email Address'
+							className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
+						/>
+					</div>
+				</div>
+
+				<div className='mt-3 sm:mt-5 md:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 md:gap-[30px]'>
+					<PasswordInput
+						label='Password'
+						placeholder='Enter Password'
+						value={password}
+						onChange={handlePasswordChange}
+					/>
+					<PasswordInput
+						label='Confirm Password'
+						placeholder='Enter Confirm Password'
+						value={confirmPassword}
+						onChange={handleConfirmPasswordChange}
+					/>
+					<div className='w-full flex flex-col gap-2 relative'>
+						<label
+							htmlFor='calendar'
+							className='text-[#212529] text-[14px] sm:text-[16px] font-medium leading-[20px]'
+						>
+							Date of Birth
+						</label>
+						<div className='w-full h-[45px] sm:h-[50px] bg-white rounded-[60px] px-5 flex items-center gap-2 relative'>
+							<input
+								ref={inputRef} // Attach ref to the input field
+								type='text'
+								value={
+									selectedDate
+										? selectedDate.toLocaleDateString()
+										: ''
+								}
+								placeholder='DD/MM/YYYY'
+								className='w-full h-full outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
+								readOnly // Make input readonly to avoid manual input
+								// onFocus={handleFocus} // Show date picker when focused
+								// onBlur={handleBlur} // Hide date picker when blurred
+							/>
+							<Image
+								src='/icons/calendar.svg'
+								alt='calendar'
+								width={20}
+								height={20}
+								onClick={handleIconClick} // Toggle the date picker on icon click
+							/>
+
+							{/* Show Date Picker if the state is true */}
+							{showDatePicker && (
+								<div
+									className='absolute w-auto left-[110px] top-12 z-10'
+									ref={datepickerRef}
+								>
+									<DatePicker
+										selected={selectedDate}
+										onChange={handleDateChange}
+										inline
+										dateFormat='dd/MM/yyyy'
+										className='w-full rounded-[8px] shadow-lg'
+									/>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+				<div className='mt-6 flex justify-end'>
+					<button
+						type='submit'
+						className='bg-[#060606] text-white text-[14px] sm:text-[16px] px-6 py-2 rounded-[60px]'
+					>
+						Save Changes
+					</button>
+				</div>
+			</form>
+			<PhysicalInformation />
+			<ExerciseOneRepMaxes />
+			<SocialMediaLink />
+			<PlateConfiguration />
+		</div>
+	);
+};
+
+export default AccountInformation;
