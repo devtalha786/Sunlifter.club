@@ -1,17 +1,18 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { initializeApp } from "firebase/app";
+import { getStorage } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+
 
 const firebaseConfig = {
-	apiKey: 'AIzaSyBfzEEj3fHqABCX4-zezr_5UHSUm0FEX80',
-	authDomain: 'sunlifterclub.firebaseapp.com',
-	projectId: 'sunlifterclub',
-	storageBucket: 'sunlifterclub.firebasestorage.app',
-	messagingSenderId: '597353066196',
-	appId: '1:597353066196:web:7df1d012dff892e4975541',
-	measurementId: 'G-2ZM08NSZHC',
+  apiKey:process.env.NEXT_PUBLIC_APIKEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTHDOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECTID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGEBUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGINGSENDERID,
+  appId: process.env.NEXT_PUBLIC_APPID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENTID,
 };
 
 // Initialize Firebase
