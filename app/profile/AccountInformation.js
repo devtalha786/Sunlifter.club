@@ -1,22 +1,27 @@
 'use client';
-
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import PasswordInput from './PasswordInput';
 import PhysicalInformation from './PhysicalInformation';
 import ExerciseOneRepMaxes from './ExerciseOneRepMaxes';
 import SocialMediaLink from './SocialMediaLink';
 import PlateConfiguration from './PlateConfiguration';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { registerUser } from '../store/user/userThunk';
+import { getSingleUser, registerUser } from '../store/user/userThunk';
 import toast from 'react-hot-toast';
+import { IoIosArrowForward } from 'react-icons/io';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const AccountInformation = () => {
+	const { uid, singleUser } = useSelector(state => state?.user);
 	const dispatch = useDispatch();
 	const router = useRouter();
+	const inputRef = useRef(null);
+	const datepickerRef = useRef(null);
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -26,12 +31,63 @@ const AccountInformation = () => {
 	// const [profileFile, setProfileFile] = useState(null);
 	const [selectedDate, setSelectedDate] = useState('');
 	const [showDatePicker, setShowDatePicker] = useState(false);
-	const inputRef = useRef(null);
-	const datepickerRef = useRef(null);
+	const [physical, setPhysical] = useState({
+		currentWeight: '',
+		weightGoal: '',
+		height: '',
+		useFeetInches: false,
+		useLbs: false,
+	});
+	const [exercises, setExercises] = useState([
+		{ type: 'Squat', current: '', goal: '' },
+		{ type: 'Bench', current: '', goal: '' },
+		{ type: 'Deadlift', current: '', goal: '' },
+	]);
+	const [socialMediaLinks, setSocialMediaLinks] = useState({
+		instagram: '',
+		facebook: '',
+		twitter: '',
+	});
+	const [barbellWeight, setBarbellWeight] = useState('');
+	const [plates, setPlates] = useState({
+		'25kg': '',
+		'20kg': '',
+		'15kg': '',
+		'10kg': '',
+		'5kg': '',
+		'2.5kg': '',
+		'1.25kg': '',
+		'1kg': '',
+		'0.5kg': '',
+		'0.25kg': '',
+	});
+	const [doTheMaths, setDoTheMaths] = useState(false);
+	const [isMounted, setIsMounted] = useState(false); // Flag to check if the component is mounted
+
+	// Check if the component is mounted to avoid hydration error
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+	// Only populate state once component has mounted
+	useEffect(() => {
+		if (isMounted && singleUser) {
+			setName(singleUser.name || '');
+			setEmail(singleUser.email || '');
+			setSelectedDate(singleUser.dateOfBirth || '');
+			setPhysical(singleUser.physical || {});
+			setExercises(singleUser.exercises || []);
+			setSocialMediaLinks(singleUser.socialMedia || {});
+			setBarbellWeight(
+				singleUser.plateConfiguration?.barbellWeight || ''
+			);
+			setPlates(singleUser.plateConfiguration?.plates || {});
+			setDoTheMaths(singleUser.plateConfiguration?.doTheMaths || false);
+		}
+	}, [singleUser, isMounted]);
 
 	// Handle date selection from the date picker
 	const handleDateChange = date => {
-		setSelectedDate(date);
+		setSelectedDate(date.toLocaleDateString('en-GB'));
 		setShowDatePicker(false);
 	};
 
@@ -71,6 +127,15 @@ const AccountInformation = () => {
 			document.removeEventListener('mousedown', handleClickOutside); // Cleanup event listener on unmount
 		};
 	}, []);
+	useEffect(() => {
+		if (uid) {
+			dispatch(
+				getSingleUser({
+					uid: uid,
+				})
+			);
+		}
+	}, [uid, dispatch]);
 
 	// Handle form field changes
 	const handleName = e => setName(e.target.value);
@@ -96,32 +161,82 @@ const AccountInformation = () => {
 
 	const handleSubmit = async e => {
 		e.preventDefault();
-		if (!name || !email || !password || !confirmPassword || !selectedDate) {
-			alert('All fields are required');
-			return;
-		}
-		if (password !== confirmPassword) {
-			alert('Passwords do not match');
-			return;
-		}
-		const formData = {
+
+		const createFormData = () => ({
+			physical: {
+				currentWeight: physical.currentWeight,
+				weightGoal: physical.weightGoal,
+				height: physical.height,
+				useFeetInches: physical.useFeetInches,
+				useLbs: physical.useLbs,
+			},
+			exercises,
+			socialMedia: {
+				instagram: socialMediaLinks.instagram,
+				facebook: socialMediaLinks.facebook,
+				twitter: socialMediaLinks.twitter,
+			},
+			plateConfiguration: {
+				barbellWeight,
+				plates,
+				doTheMaths,
+			},
 			name,
 			email,
-			selectedDate,
-			// profilePicture: profileFile,
-		};
-		dispatch(
-			registerUser({
-				payload: { ...formData, password },
-				onSuccess: () => router.push('/login'),
-			})
-		);
+			dateOfBirth: selectedDate,
+		});
+
+		if (uid) {
+			try {
+				const userRef = doc(db, 'users', uid);
+				const formData = createFormData();
+
+				await updateDoc(userRef, {
+					physical: formData.physical,
+					exercises: formData.exercises,
+					socialMedia: formData.socialMedia,
+					plateConfiguration: formData.plateConfiguration,
+				});
+
+				toast.success('Information saved successfully!');
+			} catch (error) {
+				console.error('Error saving data:', error);
+				toast.error('Failed to save.');
+			}
+		} else {
+			if (
+				!name ||
+				!email ||
+				!password ||
+				!confirmPassword ||
+				!selectedDate
+			) {
+				toast.error('All fields are required');
+				return;
+			}
+			if (password !== confirmPassword) {
+				toast.error('Passwords do not match');
+				return;
+			}
+
+			const formData = createFormData();
+
+			dispatch(
+				registerUser({
+					payload: { ...formData, password },
+					onSuccess: () => router.push('/login'),
+					onError: error =>
+						toast.error(error.message || 'Registration failed'),
+				})
+			);
+		}
 	};
+	if (!isMounted) return null; // Prevent rendering until client-side hydration is done
 
 	return (
 		<div>
-			<form
-				onSubmit={handleSubmit}
+			<div
+				// onSubmit={handleSubmit}
 				className='border-b border-[#D9D9D9] pb-6 md:pb-10 lg:pb-[60px] mb-6 md:mb-10 lg:mb-[60px]'
 			>
 				<h1 className='text-[#060606] text-[24px] md:text-[32px] md:leading-[40px] font-semibold tracking-[0.01em] mb-6 md:mb-[50px]'>
@@ -175,6 +290,7 @@ const AccountInformation = () => {
 						<input
 							value={name}
 							onChange={handleName}
+							readOnly={uid}
 							type='text'
 							placeholder='Enter User Name'
 							className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
@@ -187,6 +303,7 @@ const AccountInformation = () => {
 						<input
 							value={email}
 							onChange={handleEmail}
+							readOnly={uid}
 							type='email'
 							placeholder='Enter Email Address'
 							className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
@@ -195,18 +312,25 @@ const AccountInformation = () => {
 				</div>
 
 				<div className='mt-3 sm:mt-5 md:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 md:gap-[30px]'>
-					<PasswordInput
-						label='Password'
-						placeholder='Enter Password'
-						value={password}
-						onChange={handlePasswordChange}
-					/>
-					<PasswordInput
-						label='Confirm Password'
-						placeholder='Enter Confirm Password'
-						value={confirmPassword}
-						onChange={handleConfirmPasswordChange}
-					/>
+					{uid ? (
+						<></>
+					) : (
+						<>
+							<PasswordInput
+								label='Password'
+								placeholder='Enter Password'
+								value={password}
+								onChange={handlePasswordChange}
+							/>
+							<PasswordInput
+								label='Confirm Password'
+								placeholder='Enter Confirm Password'
+								value={confirmPassword}
+								onChange={handleConfirmPasswordChange}
+							/>
+						</>
+					)}
+
 					<div className='w-full flex flex-col gap-2 relative'>
 						<label
 							htmlFor='calendar'
@@ -216,28 +340,21 @@ const AccountInformation = () => {
 						</label>
 						<div className='w-full h-[45px] sm:h-[50px] bg-white rounded-[60px] px-5 flex items-center gap-2 relative'>
 							<input
-								ref={inputRef} // Attach ref to the input field
+								ref={inputRef}
 								type='text'
-								value={
-									selectedDate
-										? selectedDate.toLocaleDateString()
-										: ''
-								}
+								value={selectedDate} // Format the Date object before displaying
 								placeholder='DD/MM/YYYY'
 								className='w-full h-full outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
 								readOnly // Make input readonly to avoid manual input
-								// onFocus={handleFocus} // Show date picker when focused
-								// onBlur={handleBlur} // Hide date picker when blurred
 							/>
 							<Image
 								src='/icons/calendar.svg'
 								alt='calendar'
 								width={20}
 								height={20}
-								onClick={handleIconClick} // Toggle the date picker on icon click
+								onClick={uid ? undefined : handleIconClick} // Toggle the date picker on icon click
 							/>
 
-							{/* Show Date Picker if the state is true */}
 							{showDatePicker && (
 								<div
 									className='absolute w-auto left-[110px] top-12 z-10'
@@ -255,19 +372,45 @@ const AccountInformation = () => {
 						</div>
 					</div>
 				</div>
-				<div className='mt-6 flex justify-end'>
+				{/* <div className='mt-6 flex justify-end'>
 					<button
 						type='submit'
 						className='bg-[#060606] text-white text-[14px] sm:text-[16px] px-6 py-2 rounded-[60px]'
 					>
 						Save Changes
 					</button>
-				</div>
-			</form>
-			<PhysicalInformation />
-			<ExerciseOneRepMaxes />
-			<SocialMediaLink />
-			<PlateConfiguration />
+				</div> */}
+			</div>
+			<PhysicalInformation
+				setPhysical={setPhysical}
+				physical={physical}
+			/>
+			<ExerciseOneRepMaxes
+				exercises={exercises}
+				setExercises={setExercises}
+			/>
+			<SocialMediaLink
+				socialMediaLinks={socialMediaLinks}
+				setSocialMediaLinks={setSocialMediaLinks}
+			/>
+			<PlateConfiguration
+				plates={plates}
+				setPlates={setPlates}
+				barbellWeight={barbellWeight}
+				setBarbellWeight={setBarbellWeight}
+				doTheMaths={doTheMaths}
+				setDoTheMaths={setDoTheMaths}
+			/>
+
+			<div>
+				<button
+					onClick={handleSubmit}
+					className='bg-black w-[149px] sm:w-[220px] h-[39px] sm:h-[56px] rounded-[43px] text-white text-[14px] sm:text-[18px] sm:leading-[20px] font-normal sm:font-medium flex items-center gap-1 justify-center'
+				>
+					Save Changes{' '}
+					<IoIosArrowForward className='text-[16px] sm:text-[18px]' />
+				</button>
+			</div>
 		</div>
 	);
 };

@@ -95,3 +95,24 @@ export const logout = createAsyncThunk(
 		}
 	}
 );
+// `getSingleUser` Thunk
+export const getSingleUser = createAsyncThunk(
+	'user/getSingleUser',
+	async ({ uid }, thunkAPI) => {
+		try {
+			const userDocRef = doc(db, 'users', uid); // Use the provided `uid`
+			const userDoc = await getDoc(userDocRef);
+
+			if (userDoc.exists()) {
+				const userData = userDoc.data();
+				return userData;
+			} else {
+				return null;
+			}
+		} catch (error) {
+			console.error('Error fetching user: ', error.message);
+			// toast.error(error.message || 'Failed to fetch user');
+			return thunkAPI.rejectWithValue(error.message);
+		}
+	}
+);

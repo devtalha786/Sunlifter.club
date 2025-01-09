@@ -3,9 +3,8 @@
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 
-const AddExercise = ({ label, options, placeholder }) => {
+const AddExercise = ({ label, options, placeholder,selectedOption,setSelectedOption }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(null);
     const dropdownRef = useRef(null);
 
     const toggleDropdown = () => setIsOpen(!isOpen);

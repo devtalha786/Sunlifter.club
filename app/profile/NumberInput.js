@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 
-const NumberInput = ({ label, placeholder, value }) => {
+const NumberInput = ({ label, placeholder, value ,onChange}) => {
 
     return (
         <div className='w-full flex flex-col gap-2'>
@@ -11,7 +11,9 @@ const NumberInput = ({ label, placeholder, value }) => {
                 <input
                     type='number'
                     id="number"
+                    value={value}
                     placeholder={placeholder}
+                    onChange={onChange}
                     className='h-full w-full outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
                 />
                 <button >

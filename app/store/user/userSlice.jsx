@@ -1,13 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
-import { loginUser, logout, registerUser } from './userThunk';
+import { getSingleUser, loginUser, logout, registerUser } from './userThunk';
 
 const initialState = {
 	user: getCookie('user') ? JSON.parse(getCookie('user')) : null,
 	uid: getCookie('uid') || null,
 	isLoading: false,
 	loading: false,
-
+	singleUser: null,
 	error: null,
 };
 
@@ -40,6 +40,20 @@ export const userSlice = createSlice({
 				state.isLoading = false;
 			})
 
+			// Handle singleUser thunk
+			.addCase(getSingleUser.pending, state => {
+				state.isLoading = true;
+				state.error = null; // Clear previous errors
+			})
+			.addCase(getSingleUser.fulfilled, (state, action) => {
+				state.singleUser = action.payload; // Set fetched user data
+				state.isLoading = false;
+			})
+			.addCase(getSingleUser.rejected, (state, action) => {
+				state.isLoading = false;
+				state.error = action.payload; // Set error message
+			})
+
 			// Handle registerUser thunk
 			.addCase(registerUser.pending, state => {
 				state.isLoading = true;
@@ -50,7 +64,6 @@ export const userSlice = createSlice({
 			.addCase(registerUser.rejected, state => {
 				state.isLoading = false;
 			})
-
 			// Handle logout thunk
 			.addCase(logout.pending, state => {
 				state.isLoading = true;
