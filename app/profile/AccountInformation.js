@@ -74,13 +74,46 @@ const AccountInformation = () => {
 			setName(singleUser.name || '');
 			setEmail(singleUser.email || '');
 			setSelectedDate(singleUser.dateOfBirth || '');
-			setPhysical(singleUser.physical || {});
-			setExercises(singleUser.exercises || []);
-			setSocialMediaLinks(singleUser.socialMedia || {});
+			setPhysical(
+				singleUser.physical || {
+					currentWeight: '',
+					weightGoal: '',
+					height: '',
+					useFeetInches: false,
+					useLbs: false,
+				}
+			);
+			setExercises(
+				singleUser.exercises || [
+					{ type: 'Squat', current: '', goal: '' },
+					{ type: 'Bench', current: '', goal: '' },
+					{ type: 'Deadlift', current: '', goal: '' },
+				]
+			);
+			setSocialMediaLinks(
+				singleUser.socialMedia || {
+					instagram: '',
+					facebook: '',
+					twitter: '',
+				}
+			);
 			setBarbellWeight(
 				singleUser.plateConfiguration?.barbellWeight || ''
 			);
-			setPlates(singleUser.plateConfiguration?.plates || {});
+			setPlates(
+				singleUser.plateConfiguration?.plates || {
+					'25kg': '',
+					'20kg': '',
+					'15kg': '',
+					'10kg': '',
+					'5kg': '',
+					'2.5kg': '',
+					'1.25kg': '',
+					'1kg': '',
+					'0.5kg': '',
+					'0.25kg': '',
+				}
+			);
 			setDoTheMaths(singleUser.plateConfiguration?.doTheMaths || false);
 		}
 	}, [singleUser, isMounted]);
@@ -196,6 +229,8 @@ const AccountInformation = () => {
 					exercises: formData.exercises,
 					socialMedia: formData.socialMedia,
 					plateConfiguration: formData.plateConfiguration,
+					name: formData.name,
+					dateOfBirth: formData.dateOfBirth,
 				});
 
 				toast.success('Information saved successfully!');
@@ -203,32 +238,6 @@ const AccountInformation = () => {
 				console.error('Error saving data:', error);
 				toast.error('Failed to save.');
 			}
-		} else {
-			if (
-				!name ||
-				!email ||
-				!password ||
-				!confirmPassword ||
-				!selectedDate
-			) {
-				toast.error('All fields are required');
-				return;
-			}
-			if (password !== confirmPassword) {
-				toast.error('Passwords do not match');
-				return;
-			}
-
-			const formData = createFormData();
-
-			dispatch(
-				registerUser({
-					payload: { ...formData, password },
-					onSuccess: () => router.push('/login'),
-					onError: error =>
-						toast.error(error.message || 'Registration failed'),
-				})
-			);
 		}
 	};
 	if (!isMounted) return null; // Prevent rendering until client-side hydration is done
@@ -290,7 +299,6 @@ const AccountInformation = () => {
 						<input
 							value={name}
 							onChange={handleName}
-							readOnly={uid}
 							type='text'
 							placeholder='Enter User Name'
 							className='w-full h-[45px] sm:h-[50px] rounded-[60px] px-5 outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
