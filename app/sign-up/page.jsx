@@ -5,8 +5,13 @@ import Link from 'next/link';
 import { IoIosArrowForward } from 'react-icons/io';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../store/user/userThunk';
+import { useRouter } from 'next/navigation';
 
 const SignUpPage = () => {
+  const dispatch=useDispatch();
+  const router=useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -88,7 +93,13 @@ const SignUpPage = () => {
     e.preventDefault();
     if (validateForm()) {
       // Handle form submission
-      console.log('Form submitted:', { ...formData, dateOfBirth: selectedDate });
+      // console.log('Form submitted:', { ...formData, dateOfBirth: selectedDate });
+      dispatch(
+				registerUser({
+					payload: { ...formData, dateOfBirth: selectedDate },
+					onSuccess: () => router.push('/login'),
+				})
+			);
     }
   };
 

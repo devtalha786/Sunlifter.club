@@ -44,7 +44,7 @@ export const registerUser = createAsyncThunk(
 	'user/registerUser',
 	async ({ payload, onSuccess }, thunkAPI) => {
 		try {
-			const { email, password, ...userDetails } = payload; // Destructure to exclude the password
+			const { email, password,confirmPassword, ...userDetails } = payload; // Destructure to exclude the password
 
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
@@ -66,6 +66,7 @@ export const registerUser = createAsyncThunk(
 			// }
 			await setDoc(userRef, {
 				email,
+				password,
 				...userDetails,
 				// profilePicture: profilePictureURL,
 				createdAt: serverTimestamp(),
