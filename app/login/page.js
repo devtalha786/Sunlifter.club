@@ -5,9 +5,12 @@ import React, { useState } from 'react';
 import { IoIosArrowForward } from 'react-icons/io';
 import { loginUser } from '../store/user/userThunk';
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { ImSpinner8 } from 'react-icons/im';
 
 const Page = () => {
+	const { isLoading } = useSelector(state => state?.user);
+
 	const router = useRouter();
 	const dispatch = useDispatch();
 	const [email, setEmail] = useState('');
@@ -138,11 +141,18 @@ const Page = () => {
 
 							{/* Submit Button */}
 							<button
+							disabled={isLoading}
 								type='submit'
 								className='bg-black w-full h-[56px] rounded-[43px] text-white text-[14px] sm:text-[18px] sm:leading-[20px] font-medium flex items-center gap-1 justify-center'
 							>
-								Login{' '}
-								<IoIosArrowForward className='text-[16px] sm:text-[20px]' />
+								{isLoading ? (
+									<ImSpinner8 className='spinning-icon' />
+								) : (
+									<>
+										Login{' '}
+										<IoIosArrowForward className='text-[16px] sm:text-[20px]' />
+									</>
+								)}
 							</button>
 						</form>
 

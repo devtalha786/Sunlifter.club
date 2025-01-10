@@ -6,7 +6,13 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import {
+	doc,
+	getDoc,
+	serverTimestamp,
+	setDoc,
+	updateDoc,
+} from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
 // `loginUser` Thunk
@@ -44,7 +50,8 @@ export const registerUser = createAsyncThunk(
 	'user/registerUser',
 	async ({ payload, onSuccess }, thunkAPI) => {
 		try {
-			const { email, password,confirmPassword, ...userDetails } = payload; // Destructure to exclude the password
+			const { email, password, confirmPassword, ...userDetails } =
+				payload; // Destructure to exclude the password
 
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
@@ -114,6 +121,30 @@ export const getSingleUser = createAsyncThunk(
 			console.error('Error fetching user: ', error.message);
 			// toast.error(error.message || 'Failed to fetch user');
 			return thunkAPI.rejectWithValue(error.message);
+		}
+	}
+);
+
+// `profileUpdate` Thunk
+export const profileUpdate = createAsyncThunk(
+	'user/profileUpdate',
+	async ({ formData, uid }, thunkAPI) => {
+		try {
+			const userRef = doc(db, 'users', uid);
+
+			await updateDoc(userRef, {
+				physical: formData.physical,
+				exercises: formData.exercises,
+				socialMedia: formData.socialMedia,
+				plateConfiguration: formData.plateConfiguration,
+				name: formData.name,
+				dateOfBirth: formData.dateOfBirth,
+			});
+
+			toast.success('Profile Update successfully!');
+		} catch (error) {
+			console.error('Error saving data:', error);
+			toast.error('Failed to save.');
 		}
 	}
 );

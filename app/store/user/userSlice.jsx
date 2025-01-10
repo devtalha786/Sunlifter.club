@@ -1,6 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
-import { getSingleUser, loginUser, logout, registerUser } from './userThunk';
+import {
+	getSingleUser,
+	loginUser,
+	logout,
+	profileUpdate,
+	registerUser,
+} from './userThunk';
 
 const initialState = {
 	user: getCookie('user') ? JSON.parse(getCookie('user')) : null,
@@ -53,7 +59,16 @@ export const userSlice = createSlice({
 				state.isLoading = false;
 				state.error = action.payload; // Set error message
 			})
-
+			// Handle profileUpdate thunk
+			.addCase(profileUpdate.pending, state => {
+				state.isLoading = true;
+			})
+			.addCase(profileUpdate.fulfilled, state => {
+				state.isLoading = false;
+			})
+			.addCase(profileUpdate.rejected, state => {
+				state.isLoading = false;
+			})
 			// Handle registerUser thunk
 			.addCase(registerUser.pending, state => {
 				state.isLoading = true;

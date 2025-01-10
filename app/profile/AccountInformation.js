@@ -10,14 +10,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getSingleUser, registerUser } from '../store/user/userThunk';
-import toast from 'react-hot-toast';
+import { ImSpinner8 } from 'react-icons/im';
+import { getSingleUser, profileUpdate } from '../store/user/userThunk';
 import { IoIosArrowForward } from 'react-icons/io';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
 
 const AccountInformation = () => {
-	const { uid, singleUser } = useSelector(state => state?.user);
+	const { uid, singleUser, isLoading } = useSelector(state => state?.user);
 	const dispatch = useDispatch();
 	const router = useRouter();
 	const inputRef = useRef(null);
@@ -212,27 +210,13 @@ const AccountInformation = () => {
 			email,
 			dateOfBirth: selectedDate,
 		});
-
-		if (uid) {
-			try {
-				const userRef = doc(db, 'users', uid);
-				const formData = createFormData();
-
-				await updateDoc(userRef, {
-					physical: formData.physical,
-					exercises: formData.exercises,
-					socialMedia: formData.socialMedia,
-					plateConfiguration: formData.plateConfiguration,
-					name: formData.name,
-					dateOfBirth: formData.dateOfBirth,
-				});
-
-				toast.success('Profile Update successfully!');
-			} catch (error) {
-				console.error('Error saving data:', error);
-				toast.error('Failed to save.');
-			}
-		}
+		const formData = createFormData();
+		dispatch(
+			profileUpdate({
+				formData,
+				uid,
+			})
+		);
 	};
 	if (!isMounted) return null; // Prevent rendering until client-side hydration is done
 
@@ -408,11 +392,18 @@ const AccountInformation = () => {
 
 			<div>
 				<button
+					disabled={isLoading}
 					onClick={handleSubmit}
 					className='bg-black w-[149px] sm:w-[220px] h-[39px] sm:h-[56px] rounded-[43px] text-white text-[14px] sm:text-[18px] sm:leading-[20px] font-normal sm:font-medium flex items-center gap-1 justify-center'
 				>
-					Save Changes{' '}
-					<IoIosArrowForward className='text-[16px] sm:text-[18px]' />
+					{isLoading ? (
+						<ImSpinner8 className='spinning-icon' />
+					) : (
+						<>
+							Save Changes
+							<IoIosArrowForward className='text-[16px] sm:text-[18px]' />
+						</>
+					)}
 				</button>
 			</div>
 		</div>

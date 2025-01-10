@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { IoIosArrowForward } from 'react-icons/io';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../store/user/userThunk';
 import { useRouter } from 'next/navigation';
+import { ImSpinner8 } from 'react-icons/im';
 
 const SignUpPage = () => {
+  const {isLoading } = useSelector(state => state?.user);
   const dispatch=useDispatch();
   const router=useRouter();
   const [formData, setFormData] = useState({
@@ -310,7 +312,7 @@ const SignUpPage = () => {
                       className="absolute left-0 top-full mt-2 z-50"
                     >
                       <DatePicker
-                        selected={selectedDate ? new Date(selectedDate) : null}
+                        // selected={selectedDate ? new Date(selectedDate) : null}
                         onChange={handleDateChange}
                         inline
                         dateFormat="dd/MM/yyyy"
@@ -325,10 +327,18 @@ const SignUpPage = () => {
 
               {/* Submit Button */}
               <button
+              disabled={isLoading}
                 type="submit"
                 className="mt-6 bg-black w-full h-[56px] rounded-[43px] text-white text-[18px] leading-[20px] font-medium flex items-center gap-1 justify-center"
               >
-                Sign Up <IoIosArrowForward className="text-[20px]" />
+                {isLoading ? (
+                          <ImSpinner8 className='spinning-icon' />
+                        ) : (
+                          <>
+                          Sign Up <IoIosArrowForward className="text-[20px]" />
+                          </>
+                        )}
+          
               </button>
             </form>
 
