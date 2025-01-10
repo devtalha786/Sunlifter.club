@@ -124,12 +124,6 @@ const AccountInformation = () => {
 		setShowDatePicker(false);
 	};
 
-	// Handle icon click (show date picker)
-	const handleIconClick = e => {
-		e.stopPropagation();
-		setShowDatePicker(prev => !prev);
-	};
-
 	// Handle input field focus (show date picker)
 	// const handleFocus = () => {
 	// 	setShowDatePicker(true);
@@ -233,7 +227,7 @@ const AccountInformation = () => {
 					dateOfBirth: formData.dateOfBirth,
 				});
 
-				toast.success('Information saved successfully!');
+				toast.success('Profile Update successfully!');
 			} catch (error) {
 				console.error('Error saving data:', error);
 				toast.error('Failed to save.');
@@ -354,13 +348,15 @@ const AccountInformation = () => {
 								placeholder='DD/MM/YYYY'
 								className='w-full h-full outline-none placeholder:text-[#868E96] text-black text-[14px] sm:text-[16px] font-normal leading-[20px]'
 								readOnly // Make input readonly to avoid manual input
+								onClick={() =>
+									setShowDatePicker(!showDatePicker)
+								}
 							/>
 							<Image
 								src='/icons/calendar.svg'
 								alt='calendar'
 								width={20}
 								height={20}
-								onClick={uid ? undefined : handleIconClick} // Toggle the date picker on icon click
 							/>
 
 							{showDatePicker && (
@@ -369,7 +365,7 @@ const AccountInformation = () => {
 									ref={datepickerRef}
 								>
 									<DatePicker
-										selected={selectedDate}
+										// selected={selectedDate}
 										onChange={handleDateChange}
 										inline
 										dateFormat='dd/MM/yyyy'
