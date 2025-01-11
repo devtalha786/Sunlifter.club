@@ -24,9 +24,9 @@ const AccountInformation = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const [imagePreview, setImagePreview] = useState('/profile-image.png');
+	const [imagePreview, setImagePreview] = useState('/assets/profile-image.png');
 	const [imageError, setImageError] = useState(false);
-	// const [profileFile, setProfileFile] = useState(null);
+	const [profileFile, setProfileFile] = useState(null);
 	const [selectedDate, setSelectedDate] = useState('');
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [physical, setPhysical] = useState({
@@ -72,6 +72,7 @@ const AccountInformation = () => {
 			setName(singleUser.name || '');
 			setEmail(singleUser.email || '');
 			setSelectedDate(singleUser.dateOfBirth || '');
+			setImagePreview(singleUser.profilePicture || '/assets/profile-image.png');
 			setPhysical(
 				singleUser.physical || {
 					currentWeight: '',
@@ -170,7 +171,7 @@ const AccountInformation = () => {
 	const handleImageUpload = e => {
 		const file = e.target.files[0];
 		if (file) {
-			// setProfileFile(file);
+			setProfileFile(file);
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				setImagePreview(reader.result);
@@ -209,6 +210,7 @@ const AccountInformation = () => {
 			name,
 			email,
 			dateOfBirth: selectedDate,
+			profilePicture: profileFile,
 		});
 		const formData = createFormData();
 		dispatch(
@@ -233,12 +235,13 @@ const AccountInformation = () => {
 				{/* Profile Edit */}
 				<div className='relative w-[107px] h-[107px]'>
 					{imageError ? (
-						<div className='w-full h-full rounded-full flex items-center justify-center'>
-							<img
-								src='/assets/profile-image.png'
-								alt='profile-image'
-							/>
-						</div>
+						<Image
+							src={imagePreview}
+							alt='Profile'
+							width={107}
+							height={107}
+							className='rounded-full object-cover w-full h-full'
+						/>
 					) : (
 						<Image
 							src={imagePreview}

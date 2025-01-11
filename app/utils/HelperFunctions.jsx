@@ -1,12 +1,16 @@
-
-import { storage } from "../config/firebase";
-import { serverTimestamp } from "firebase/firestore";
+import { storage } from '../config/firebase';
+import { serverTimestamp } from 'firebase/firestore';
 import {
-  getDownloadURL,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
-export const uploadToFirebase = async (file, path) => {
+	deleteObject,
+	getDownloadURL,
+	ref,
+	uploadBytes,
+} from 'firebase/storage';
+export const uploadToFirebase = async (file, path, previousFilePath) => {
+	if (previousFilePath) {
+		const previousRef = ref(storage, previousFilePath);
+		await deleteObject(previousRef);
+	}
 	const fileName = `${Date.now()}-${file.name}`;
 	const storageRef = ref(storage, `${path}/${fileName}`);
 

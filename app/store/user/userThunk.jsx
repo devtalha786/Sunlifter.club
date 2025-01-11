@@ -63,19 +63,19 @@ export const registerUser = createAsyncThunk(
 			const userRef = doc(db, 'users', userCredential.user.uid);
 
 			// If profilePicture exists, upload it
-			// let profilePictureURL = null;
-			// if (userDetails.profilePicture) {
-			// 	const result = await uploadToFirebase(
-			// 		userDetails.profilePicture,
-			// 		'profiles_Images'
-			// 	);
-			// 	profilePictureURL = result.downloadURL;
-			// }
+			let profilePictureURL = null;
+			if (userDetails.profilePicture) {
+				const result = await uploadToFirebase(
+					userDetails.profilePicture,
+					'profiles_Images'
+				);
+				profilePictureURL = result.downloadURL;
+			}
 			await setDoc(userRef, {
 				email,
 				password,
 				...userDetails,
-				// profilePicture: profilePictureURL,
+				profilePicture: profilePictureURL,
 				createdAt: serverTimestamp(),
 			});
 			toast.success('Account created successfully');
@@ -131,7 +131,26 @@ export const profileUpdate = createAsyncThunk(
 	async ({ formData, uid }, thunkAPI) => {
 		try {
 			const userRef = doc(db, 'users', uid);
-
+			const userDoc = await getDoc(userRef);
+			if (!userDoc.exists()) {
+				throw new Error('User document does not exist');
+			}
+			const currentData = userDoc.data();
+			let profilePictureURL = currentData.profilePicture;
+			if (formData.profilePicture) {
+				const newFileName = formData.profilePicture.name;
+				if (
+					!profilePictureURL ||
+					!profilePictureURL.includes(newFileName)
+				) {
+					const result = await uploadToFirebase(
+						formData.profilePicture,
+						'profiles_Images',
+						currentData.profilePicture
+					);
+					profilePictureURL = result.downloadURL;
+				}
+			}
 			await updateDoc(userRef, {
 				physical: formData.physical,
 				exercises: formData.exercises,
@@ -139,6 +158,8 @@ export const profileUpdate = createAsyncThunk(
 				plateConfiguration: formData.plateConfiguration,
 				name: formData.name,
 				dateOfBirth: formData.dateOfBirth,
+				profilePicture: profilePictureURL,
+				updatedAt: serverTimestamp(),
 			});
 
 			toast.success('Profile Update successfully!');
