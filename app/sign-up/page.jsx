@@ -157,7 +157,7 @@ const SignUpPage = () => {
 									alt='Profile'
 									width={107}
 									height={107}
-									className='rounded-full object-cover'
+									className='rounded-full object-cover w-full h-full'
 								/>
 								<label
 									htmlFor='profile-upload'
