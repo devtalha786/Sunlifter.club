@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 
-const WorkoutTypeDropdown = ({ label, options, placeholder }) => {
+const WorkoutTypeDropdown = ({ label, options, placeholder,onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const dropdownRef = useRef(null);
@@ -13,6 +13,7 @@ const WorkoutTypeDropdown = ({ label, options, placeholder }) => {
     const selectOption = (option) => {
         setSelectedOption(option);
         setIsOpen(false);
+        onChange(option); 
     };
 
     useEffect(() => {

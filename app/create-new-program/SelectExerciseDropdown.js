@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import Image from 'next/image';
 
-const SelectExerciseDropdown = ({ label, options, placeholder }) => {
+const SelectExerciseDropdown = ({ label, options, placeholder,onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const [dropdownPosition, setDropdownPosition] = useState(null);
@@ -25,6 +25,9 @@ const SelectExerciseDropdown = ({ label, options, placeholder }) => {
     const selectOption = (option) => {
         setSelectedOption(option);
         setIsOpen(false);
+        if (onChange) {
+            onChange({ target: { value: option } }); // Pass a consistent event-like object
+        }
     };
 
     useEffect(() => {
