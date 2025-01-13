@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import { userSlice } from './user/userSlice';
-import { programSlice } from './user/program/programSlice';
+import { programSlice } from './program/programSlice';
 
 const reducers = combineReducers({
 	user: userSlice.reducer, // Use the reducer property of the userSlice

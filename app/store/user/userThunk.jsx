@@ -7,11 +7,15 @@ import {
 	signOut,
 } from 'firebase/auth';
 import {
+	collection,
 	doc,
 	getDoc,
+	getDocs,
+	query,
 	serverTimestamp,
 	setDoc,
 	updateDoc,
+	where,
 } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -51,18 +55,27 @@ export const registerUser = createAsyncThunk(
 	async ({ payload, onSuccess }, thunkAPI) => {
 		try {
 			const { email, password, confirmPassword, ...userDetails } =
-				payload; // Destructure to exclude the password
+				payload;
+			const usersRef = collection(db, 'users');
+			const usernameQuery = query(
+				usersRef,
+				where('name', '==', payload.name)
+			);
+			const usernameSnapshot = await getDocs(usernameQuery);
+
+			if (!usernameSnapshot.empty) {
+				const errorMessage =
+					'Username already exists. Please choose a different one.';
+				toast.error(errorMessage);
+				return thunkAPI.rejectWithValue(errorMessage);
+			}
 
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
 				email,
 				password
 			);
-
-			// Reference for Firestore
 			const userRef = doc(db, 'users', userCredential.user.uid);
-
-			// If profilePicture exists, upload it
 			let profilePictureURL = null;
 			if (userDetails.profilePicture) {
 				const result = await uploadToFirebase(
@@ -130,6 +143,19 @@ export const profileUpdate = createAsyncThunk(
 	'user/profileUpdate',
 	async ({ formData, uid }, thunkAPI) => {
 		try {
+			const usersRef = collection(db, 'users');
+			const usernameQuery = query(
+				usersRef,
+				where('name', '==', formData.name)
+			);
+			const usernameSnapshot = await getDocs(usernameQuery);
+
+			if (!usernameSnapshot.empty) {
+				const errorMessage =
+					'Username already exists. Please choose a different one.';
+				toast.error(errorMessage);
+				return thunkAPI.rejectWithValue(errorMessage);
+			}
 			const userRef = doc(db, 'users', uid);
 			const userDoc = await getDoc(userRef);
 			if (!userDoc.exists()) {
