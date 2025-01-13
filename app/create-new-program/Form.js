@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import WorkoutTypeDropdown from './WorkoutTypeDropdown';
 import { IoIosArrowForward } from 'react-icons/io';
 import NewExerciseComp from './NewExerciseComp';
-import { createNewProgram } from '../store/user/program/programThunk';
+import { createNewProgram } from '../store/program/programThunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { ImSpinner8 } from 'react-icons/im';
 import toast from 'react-hot-toast';
@@ -182,10 +182,8 @@ const Form = () => {
 			program.workoutType &&
 			program.notes
 		) {
-			// All fields are filled, dispatch the action
-			dispatch(createNewProgram({ payload: program, createdBy: uid }));
+			dispatch(createNewProgram({ ...program, createdBy: uid }));
 		} else {
-			// Show error if any field is empty
 			toast.error('All fields must be filled out!');
 		}
 	};
@@ -409,7 +407,7 @@ const Form = () => {
 						Price:
 					</label>
 					<input
-						type='text'
+						type='number'
 						value={program.price}
 						onChange={e => handleChange(e, 'price')}
 						placeholder='Enter Price'
