@@ -2,9 +2,17 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
+  const { uid } = useSelector(state => state?.user);
+	const [isMounted, setIsMounted] = useState(false);
+
+	// UseEffect to handle the mounting state to prevent SSR hydration mismatch
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
   useEffect(() => {
     const menuBtn = document.querySelector('[data-menu-button]')
     const mobileMenu = document.querySelector('[data-mobile-menu]')
@@ -24,7 +32,7 @@ const Navbar = () => {
       closeBtn?.removeEventListener('click', toggleMenu)
     }
   }, [])
-
+	if (!isMounted) return null;
   return (
     <div className='bg-white w-full px-4 lg:px-6 xl:px-10 h-[48px] sm:h-[96px] flex items-center'>
       <div className='w-full max-w-[1600px] mx-auto flex items-center justify-between'>
@@ -36,7 +44,7 @@ const Navbar = () => {
           <li><Link href='/available-routines' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Available Rountines</Link></li>
           <li><Link href='/create-new-program' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>CNP</Link></li>
           <li><Link href='/edit-your-program' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>EYP</Link></li>
-          <li><Link href='/profile' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Profile</Link></li>
+          {uid?<li><Link href='/profile' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Profile</Link></li>:null}
           <li><Link href='/your-active-routine' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>YAP</Link></li>
         </ul>
         <div className='hidden lg:flex items-center gap-5'>

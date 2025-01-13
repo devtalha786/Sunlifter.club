@@ -62,14 +62,12 @@ export const registerUser = createAsyncThunk(
 				where('name', '==', payload.name)
 			);
 			const usernameSnapshot = await getDocs(usernameQuery);
-
 			if (!usernameSnapshot.empty) {
 				const errorMessage =
 					'Username already exists. Please choose a different one.';
 				toast.error(errorMessage);
 				return thunkAPI.rejectWithValue(errorMessage);
 			}
-
 			const userCredential = await createUserWithEmailAndPassword(
 				auth,
 				email,
@@ -85,6 +83,7 @@ export const registerUser = createAsyncThunk(
 				profilePictureURL = result.downloadURL;
 			}
 			await setDoc(userRef, {
+				id: userCredential.user.uid,
 				email,
 				password,
 				...userDetails,
@@ -149,12 +148,15 @@ export const profileUpdate = createAsyncThunk(
 				where('name', '==', formData.name)
 			);
 			const usernameSnapshot = await getDocs(usernameQuery);
-
 			if (!usernameSnapshot.empty) {
-				const errorMessage =
-					'Username already exists. Please choose a different one.';
-				toast.error(errorMessage);
-				return thunkAPI.rejectWithValue(errorMessage);
+				const userDoc = usernameSnapshot.docs[0];
+				const documentId = userDoc.id;
+				if (documentId !== uid) {
+					const errorMessage =
+						'Username already exists. Please choose a different one.';
+					toast.error(errorMessage);
+					return thunkAPI.rejectWithValue(errorMessage);
+				}
 			}
 			const userRef = doc(db, 'users', uid);
 			const userDoc = await getDoc(userRef);
