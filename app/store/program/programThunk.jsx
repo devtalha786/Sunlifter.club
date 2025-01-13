@@ -33,7 +33,7 @@ export const createNewProgram = createAsyncThunk(
 
 export const getAllrogram = createAsyncThunk(
 	'programs/getAllrogram',
-	async (_, thunkAPI) => {
+	async (uid, thunkAPI) => {
 		try {
 			const programsRef = collection(db, 'programs');
 			const programsSnapshot = await getDocs(programsRef);
@@ -62,8 +62,12 @@ export const getAllrogram = createAsyncThunk(
 						};
 					})
 				);
+				const filteredPrograms = programsData.filter(program => 
+					!program.isPrivate || program.createdBy == uid
+				  );
 
-				return programsData;
+				return filteredPrograms;
+				// return programsData;
 			} else {
 				return []; // Return an empty array if no programs are found
 			}
