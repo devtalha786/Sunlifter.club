@@ -9,7 +9,7 @@ const ViewAvailableRoutine = () => {
 	const { uid } = useSelector(state => state?.user);
 	const dispatch = useDispatch();
 	useEffect(() => {
-		dispatch(getAllrogram(uid));
+		dispatch(getAllrogram());
 	}, []);
 	// const programs = [
 	// 	{

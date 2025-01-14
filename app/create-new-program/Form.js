@@ -176,7 +176,6 @@ const Form = () => {
 	const handleSubmit = () => {
 		if (
 			program.name &&
-			program.email &&
 			program.price &&
 			program.description &&
 			program.workoutType &&

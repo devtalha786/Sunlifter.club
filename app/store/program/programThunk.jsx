@@ -5,8 +5,10 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	query,
 	serverTimestamp,
 	setDoc,
+	where,
 } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -33,9 +35,12 @@ export const createNewProgram = createAsyncThunk(
 
 export const getAllrogram = createAsyncThunk(
 	'programs/getAllrogram',
-	async (uid, thunkAPI) => {
+	async (_, thunkAPI) => {
 		try {
-			const programsRef = collection(db, 'programs');
+			const programsRef = query(
+				collection(db, 'programs'),
+				where('isPrivate', '==', false)
+			);
 			const programsSnapshot = await getDocs(programsRef);
 
 			if (!programsSnapshot.empty) {
@@ -62,12 +67,11 @@ export const getAllrogram = createAsyncThunk(
 						};
 					})
 				);
-				const filteredPrograms = programsData.filter(program => 
-					!program.isPrivate || program.createdBy == uid
-				  );
-
-				return filteredPrograms;
-				// return programsData;
+				// const filteredPrograms = programsData.filter(program =>
+				// 	!program.isPrivate || program.createdBy == uid
+				//   );
+				// return filteredPrograms;
+				return programsData;
 			} else {
 				return []; // Return an empty array if no programs are found
 			}
