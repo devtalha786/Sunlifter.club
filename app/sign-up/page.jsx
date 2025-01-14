@@ -19,6 +19,7 @@ const SignUpPage = () => {
 		email: '',
 		password: '',
 		confirmPassword: '',
+		termsAccepted: false,
 	});
 	const [errors, setErrors] = useState({});
 	const [selectedDate, setSelectedDate] = useState('');
@@ -29,10 +30,10 @@ const SignUpPage = () => {
 	const inputRef = useRef(null);
 
 	const handleChange = e => {
-		const { name, value } = e.target;
+		const { name, type, value, checked } = e.target;
 		setFormData(prev => ({
 			...prev,
-			[name]: value,
+			[name]: type === 'checkbox' ? checked : value, // Handle checkbox separately
 		}));
 		// Clear error when user starts typing
 		if (errors[name]) {
@@ -88,7 +89,11 @@ const SignUpPage = () => {
 		if (!selectedDate) {
 			newErrors.date = 'Date of birth is required';
 		}
-
+		// Validate termsAccepted
+		if (!formData.termsAccepted) {
+			newErrors.termsAccepted =
+				'You must accept the terms and conditions';
+		}
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -344,6 +349,28 @@ const SignUpPage = () => {
 								{errors.date && (
 									<span className='text-red-500 text-sm'>
 										{errors.date}
+									</span>
+								)}
+							</div>
+							<div>
+								<div className='flex'>
+									<input
+										type='checkbox'
+										id='termsAccepted'
+										name='termsAccepted'
+										checked={formData.termsAccepted}
+										onChange={handleChange}
+									/>
+									<label
+										htmlFor='termsAccepted'
+										className='text-[#212529] text-[15px] font-normal leading-[17.5px] ml-2'
+									>
+										I agree to the terms and conditions
+									</label>
+								</div>
+								{errors.termsAccepted && (
+									<span className='text-red-500 text-sm'>
+										{errors.termsAccepted}
 									</span>
 								)}
 							</div>
