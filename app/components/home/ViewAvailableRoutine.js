@@ -20,7 +20,10 @@ const ViewAvailableRoutine = () => {
 		dispatch(getAllrogram());
 	}, []);
     const handleBuyClick = () => {
-		setOpen(true);
+		if (uid) {
+			setOpen(true);
+			return
+		  } 
 	};
     const typesOptions = ['Type 1', 'Type 2', 'Type 3'];
     const minpriceOptions = ['Min Price 1', 'Min Price 2', 'Min Price 3'];
@@ -143,7 +146,7 @@ const ViewAvailableRoutine = () => {
                                             <button className='bg-[#EB3340] w-[127px] sm:w-[185px] h-[39px] sm:h-[56px] rounded-[23px] sm:rounded-[43px] text-white text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 View Routine
                                             </button>
-                                            <button onClick={uid?null:handleBuyClick} className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
+                                            <button onClick={handleBuyClick} className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 Buy Now
                                             </button>
                                         </div>

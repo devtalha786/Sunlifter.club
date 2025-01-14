@@ -6,6 +6,8 @@ import { IoIosArrowForward } from 'react-icons/io';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { loginUser } from '../store/user/userThunk';
+import { ImSpinner8 } from 'react-icons/im';
 
 const LoginModal = ({ open, toggle }) => {
 	const { isLoading } = useSelector(state => state?.user);
