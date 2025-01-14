@@ -103,7 +103,13 @@ const ViewAvailableRoutine = () => {
 									<div className='mt-5 sm:mt-[47px] flex flex-col gap-[47px]'>
 										<div className='flex items-center gap-3 sm:gap-[18px]'>
 											<Image
-												src='/icons/ellipse.svg'
+												src={
+													program?.creator
+														?.profilePicture
+														? program.creator
+																.profilePicture
+														: '/icons/ellipse.svg'
+												}
 												alt='ellipse'
 												width={80}
 												height={80}
