@@ -1,45 +1,53 @@
-import React from 'react'
+'use client';
+import React, { useEffect } from 'react'
 import DropdownCustom from '../DropdownCustom';
 import CustomDropdownTwo from '../CustomDropdownTwo';
 import Image from 'next/image';
 import { IoIosArrowForward } from 'react-icons/io';
 import NumberInput from '../NumberInput';
 import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllrogram } from '@/app/store/program/programThunk';
 
 const ViewAvailableRoutine = () => {
+    const { programs } = useSelector(state => state?.program);
+	const dispatch = useDispatch();
+	useEffect(() => {
+		dispatch(getAllrogram());
+	}, []);
     const typesOptions = ['Type 1', 'Type 2', 'Type 3'];
     const minpriceOptions = ['Min Price 1', 'Min Price 2', 'Min Price 3'];
     const maxpriceOptions = ['Max Price 1', 'Max Price 2', 'Max Price 3'];
 
-    const programs = [
-        {
-            id: 1,
-            title: 'Ultimate Squat Program',
-            description: 'Perfect for beginners or those looking to build a foundation using just their body weight.',
-            type: 'Functional Training',
-            price: 'Free',
-            createdBy: 'Test testington',
-            contact: 'test1@test.com',
-        },
-        {
-            id: 2,
-            title: 'Intermediate Strength Program',
-            description: 'A great program for intermediate fitness enthusiasts.',
-            type: 'Strength Training',
-            price: '$20',
-            createdBy: 'John Doe',
-            contact: 'john.doe@example.com',
-        },
-        {
-            id: 3,
-            title: 'Ultimate Squat Program',
-            description: 'A great program for intermediate fitness enthusiasts.',
-            type: 'Strength Training',
-            price: '$20',
-            createdBy: 'John Doe',
-            contact: 'john.doe@example.com',
-        },
-    ];
+    // const programs = [
+    //     {
+    //         id: 1,
+    //         title: 'Ultimate Squat Program',
+    //         description: 'Perfect for beginners or those looking to build a foundation using just their body weight.',
+    //         type: 'Functional Training',
+    //         price: 'Free',
+    //         createdBy: 'Test testington',
+    //         contact: 'test1@test.com',
+    //     },
+    //     {
+    //         id: 2,
+    //         title: 'Intermediate Strength Program',
+    //         description: 'A great program for intermediate fitness enthusiasts.',
+    //         type: 'Strength Training',
+    //         price: '$20',
+    //         createdBy: 'John Doe',
+    //         contact: 'john.doe@example.com',
+    //     },
+    //     {
+    //         id: 3,
+    //         title: 'Ultimate Squat Program',
+    //         description: 'A great program for intermediate fitness enthusiasts.',
+    //         type: 'Strength Training',
+    //         price: '$20',
+    //         createdBy: 'John Doe',
+    //         contact: 'john.doe@example.com',
+    //     },
+    // ];
 
     return (
         <div className='bg-[#FEF1F2] px-4 lg:px-6 xl:px-10 py-12 md:py-[100px]'>
@@ -68,11 +76,11 @@ const ViewAvailableRoutine = () => {
                     </div>
 
                     <div className='mt-6 sm:mt-8 md:mt-14 flex flex-col gap-6 sm:gap-8'>
-                        {programs.map((program, index) => (
+                        {programs?.slice(0,3).map((program, index) => (
                             <div key={index} className='bg-white rounded-xl sm:rounded-[20px] max-w-[1100px] w-full py-6 sm:py-8 px-4 sm:px-6'>
                                 <div className='max-w-[883px] mx-auto w-full'>
                                     <h1 className='text-black text-[18px] sm:text-[32px] sm:leading-[40px] font-semibold tracking-[-0.02em] mb-3 sm:mb-2'>
-                                        {program.title}
+                                        {program.name}
                                     </h1>
                                     <h3 className='text-black text-[16px] sm:text-[22px] sm:leading-[27.5px] font-normal'>
                                         Description:
@@ -86,7 +94,7 @@ const ViewAvailableRoutine = () => {
                                                 Type:
                                             </h3>
                                             <h4 className='text-black/60 text-[14px] sm:text-[18px] sm:leading-[22.5px] font-normal'>
-                                                {program.type}
+                                            {program.workoutType}
                                             </h4>
                                         </div>
                                         <div className=''>
@@ -94,7 +102,7 @@ const ViewAvailableRoutine = () => {
                                                 Price:
                                             </h3>
                                             <h4 className='text-black/60 text-[14px] sm:text-[18px] sm:leading-[22.5px] font-normal'>
-                                                {program.price}
+                                            ${program.price}
                                             </h4>
                                         </div>
                                     </div>
@@ -102,7 +110,13 @@ const ViewAvailableRoutine = () => {
                                     <div className='mt-5 sm:mt-[24px] flex items-center flex-wrap justify-between gap-6'>
                                         <div className='flex items-center gap-3 sm:gap-4'>
                                             <Image
-                                                src='/icons/ellipse.svg'
+                                                	src={
+													program?.creator
+														?.profilePicture
+														? program.creator
+																.profilePicture
+														: '/icons/ellipse.svg'
+												}
                                                 alt='ellipse'
                                                 width={80}
                                                 height={80}
@@ -110,10 +124,10 @@ const ViewAvailableRoutine = () => {
                                             />
                                             <div className='flex flex-col gap-1 sm:gap-2'>
                                                 <h2 className='text-[#000000] text-[14px] sm:text-[18px] sm:leading-[22.5px] font-normal'>
-                                                    Created By : <span className='text-[#686868]'>{program.createdBy}</span>
+                                                    Created By : <span className='text-[#686868]'>{program?.creator?.name}</span>
                                                 </h2>
                                                 <h2 className='text-[#000000] text-[14px] sm:text-[18px] sm:leading-[22.5px] font-normal'>
-                                                    Contact : <span className='text-[#686868]'>{program.contact}</span>
+                                                    Contact : <span className='text-[#686868]'>{program?.creator?.email}</span>
                                                 </h2>
                                             </div>
                                         </div>
