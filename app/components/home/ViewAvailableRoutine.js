@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import DropdownCustom from '../DropdownCustom';
 import CustomDropdownTwo from '../CustomDropdownTwo';
 import Image from 'next/image';
@@ -8,13 +8,20 @@ import NumberInput from '../NumberInput';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllrogram } from '@/app/store/program/programThunk';
+import LoginModal from '../LoginModal';
 
 const ViewAvailableRoutine = () => {
     const { programs } = useSelector(state => state?.program);
+    const { uid } = useSelector(state => state?.user);
+    const [open, setOpen] = useState(false);
+	const toggle = state => setOpen(state);
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllrogram());
 	}, []);
+    const handleBuyClick = () => {
+		setOpen(true);
+	};
     const typesOptions = ['Type 1', 'Type 2', 'Type 3'];
     const minpriceOptions = ['Min Price 1', 'Min Price 2', 'Min Price 3'];
     const maxpriceOptions = ['Max Price 1', 'Max Price 2', 'Max Price 3'];
@@ -136,7 +143,7 @@ const ViewAvailableRoutine = () => {
                                             <button className='bg-[#EB3340] w-[127px] sm:w-[185px] h-[39px] sm:h-[56px] rounded-[23px] sm:rounded-[43px] text-white text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 View Routine
                                             </button>
-                                            <button className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
+                                            <button onClick={uid?null:handleBuyClick} className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 Buy Now
                                             </button>
                                         </div>
@@ -151,6 +158,7 @@ const ViewAvailableRoutine = () => {
                         Browse available routines <IoIosArrowForward className="text-white" /></Link>
 
             </div>
+            <LoginModal open={open} toggle={toggle} />
         </div>
     )
 }
