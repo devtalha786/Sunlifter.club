@@ -12,10 +12,10 @@ export async function POST(request) {
 			line_items: [
 				{
 					price_data: {
-						currency: 'usd', // Replace with the currency you want
+						currency: 'usd',
 						product_data: {
-							name: program.name, // The name of the program
-							description: program.description, // Optional description
+							name: program.name,
+							description: program.description,
 						},
 						unit_amount: Math.round(program.price * 100), // Price in cents
 					},
@@ -25,12 +25,15 @@ export async function POST(request) {
 			customer_email: email,
 			metadata: {
 				userId: userId,
+				programId: program.id,
+				programName: program.name,
+				programcreatorId: program.creator.id,
 			},
 			mode: 'payment',
-			// success_url: `${process.env.NEXT_PUBLIC_URL}/`,
-			success_url: `${process.env.NEXT_PUBLIC_URL}/?session_id={CHECKOUT_SESSION_ID}`,
+			success_url: `${process.env.NEXT_PUBLIC_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${process.env.NEXT_PUBLIC_URL}/`,
 		});
+
 		return NextResponse.json({ id: session.id });
 	} catch (error) {
 		console.error('Error:', error);
