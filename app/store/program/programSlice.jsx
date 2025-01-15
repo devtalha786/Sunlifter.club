@@ -1,8 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createNewProgram, getAllrogram, getAllrogramById } from './programThunk';
+import {
+	createNewProgram,
+	getAllrogram,
+	getAllProgramById,
+	getProgramPurchaseByOthers,
+	getProgramPurchaseByUser,
+} from './programThunk';
 const initialState = {
 	programs: [],
 	programsById: [],
+	programPurchaseByOthers: [],
+	programPurchaseByUser: [],
 	isLoading: false,
 	error: null,
 };
@@ -39,16 +47,38 @@ export const programSlice = createSlice({
 				state.isLoading = false;
 			})
 			//GetAllProgramsById
-			.addCase(getAllrogramById.pending, state => {
+			.addCase(getAllProgramById.pending, state => {
 				state.isLoading = true;
 			})
-			.addCase(getAllrogramById.fulfilled, (state, action) => {
+			.addCase(getAllProgramById.fulfilled, (state, action) => {
 				state.programsById = action.payload;
 				state.isLoading = false;
 			})
-			.addCase(getAllrogramById.rejected, state => {
+			.addCase(getAllProgramById.rejected, state => {
 				state.isLoading = false;
 			})
+			//GetProgramPurchaseByOthers
+			.addCase(getProgramPurchaseByOthers.pending, state => {
+				state.isLoading = true;
+			})
+			.addCase(getProgramPurchaseByOthers.fulfilled, (state, action) => {
+				state.programPurchaseByOthers = action.payload;
+				state.isLoading = false;
+			})
+			.addCase(getProgramPurchaseByOthers.rejected, state => {
+				state.isLoading = false;
+			})
+			//GetProgramPurchaseByUser
+			.addCase(getProgramPurchaseByUser.pending, state => {
+				state.isLoading = true;
+			})
+			.addCase(getProgramPurchaseByUser.fulfilled, (state, action) => {
+				state.programPurchaseByUser = action.payload;
+				state.isLoading = false;
+			})
+			.addCase(getProgramPurchaseByUser.rejected, state => {
+				state.isLoading = false;
+			});
 	},
 });
 
