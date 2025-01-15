@@ -6,7 +6,6 @@ import { getAllrogram } from '../store/program/programThunk';
 
 const ViewAvailableRoutine = () => {
 	const { programs } = useSelector(state => state?.program);
-	const { uid } = useSelector(state => state?.user);
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllrogram());

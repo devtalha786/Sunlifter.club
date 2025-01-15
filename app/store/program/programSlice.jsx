@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createNewProgram, getAllrogram } from './programThunk';
+import { createNewProgram, getAllrogram, getAllrogramById } from './programThunk';
 const initialState = {
 	programs: [],
+	programsById: [],
 	isLoading: false,
 	error: null,
 };
@@ -29,7 +30,6 @@ export const programSlice = createSlice({
 			//GetAllPrograms
 			.addCase(getAllrogram.pending, state => {
 				state.isLoading = true;
-				state.error = null; // Clear previous errors
 			})
 			.addCase(getAllrogram.fulfilled, (state, action) => {
 				state.programs = action.payload;
@@ -37,7 +37,18 @@ export const programSlice = createSlice({
 			})
 			.addCase(getAllrogram.rejected, state => {
 				state.isLoading = false;
-			});
+			})
+			//GetAllProgramsById
+			.addCase(getAllrogramById.pending, state => {
+				state.isLoading = true;
+			})
+			.addCase(getAllrogramById.fulfilled, (state, action) => {
+				state.programsById = action.payload;
+				state.isLoading = false;
+			})
+			.addCase(getAllrogramById.rejected, state => {
+				state.isLoading = false;
+			})
 	},
 });
 

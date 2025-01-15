@@ -82,3 +82,34 @@ export const getAllrogram = createAsyncThunk(
 		}
 	}
 );
+export const getAllrogramById = createAsyncThunk(
+	'programs/getAllrogramById',
+	async (uid, thunkAPI) => {
+		try {
+			const programsRef = query(
+				collection(db, 'programs'),
+				where('createdBy', '==', uid)
+			);
+			const programsSnapshot = await getDocs(programsRef);
+
+			if (!programsSnapshot.empty) {
+				const programsData = await Promise.all(
+					programsSnapshot.docs.map(async docSnapshot => {
+						const programData = docSnapshot.data();
+						return {
+							id: docSnapshot.id,
+							...programData,
+						};
+					})
+				);
+				return programsData;
+			} else {
+				return []; // Return an empty array if no programs are found
+			}
+		} catch (error) {
+			console.error('Failed to fetch programs:', error.message);
+			toast.error(error.message || 'Failed to fetch programs');
+			return thunkAPI.rejectWithValue(error.message);
+		}
+	}
+);

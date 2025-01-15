@@ -1,34 +1,45 @@
+'use client';
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { IoIosArrowForward } from 'react-icons/io'
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllrogramById } from '../store/program/programThunk';
 
 const PublishedRoutines = () => {
-    const programs = [
-        {
-            name: "Intermediate Strength Program",
-            type: "Strength Training",
-            duration: "25 Min",
-            price: "$99.99",
-        },
-        {
-            name: "Ultimate Squat Program",
-            type: "Strength Training",
-            duration: "25 Min",
-            price: "$99.99",
-        },
-        {
-            name: "Ultimate Squat Program",
-            type: "Strength Training",
-            duration: "25 Min",
-            price: "$99.99",
-        },
-        {
-            name: "Ultimate Squat Program",
-            type: "Strength Training",
-            duration: "25 Min",
-            price: "$99.99",
-        },
-    ];
+    const { uid } = useSelector(state => state?.user);
+    const { programsById } = useSelector(state => state?.program);
+    
+    const dispatch=useDispatch();
+    useEffect(() => {
+    dispatch(getAllrogramById(uid))
+    }, [])
+    
+    // const programs = [
+    //     {
+    //         name: "Intermediate Strength Program",
+    //         type: "Strength Training",
+    //         duration: "25 Min",
+    //         price: "$99.99",
+    //     },
+    //     {
+    //         name: "Ultimate Squat Program",
+    //         type: "Strength Training",
+    //         duration: "25 Min",
+    //         price: "$99.99",
+    //     },
+    //     {
+    //         name: "Ultimate Squat Program",
+    //         type: "Strength Training",
+    //         duration: "25 Min",
+    //         price: "$99.99",
+    //     },
+    //     {
+    //         name: "Ultimate Squat Program",
+    //         type: "Strength Training",
+    //         duration: "25 Min",
+    //         price: "$99.99",
+    //     },
+    // ];
     return (
         <div className='w-full'>
             <div className='mb-6 md:mb-[51px] flex items-center justify-between gap-4 flex-wrap'>
@@ -56,12 +67,12 @@ const PublishedRoutines = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {programs.map((program, index) => (
+                                {programsById?.map((program, index) => (
                                     <tr key={index} className="border-b border-[#E9E9E9] h-[55px] lg:h-[70px]">
-                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program.name}</td>
-                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program.type}</td>
-                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program.duration}</td>
-                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program.price}</td>
+                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program?.name}</td>
+                                        <td className="px-6 text-base text-[#292933] text-nowrap">{program?.workoutType}</td>
+                                        <td className="px-6 text-base text-[#292933] text-nowrap">25 Min</td>
+                                        <td className="px-6 text-base text-[#292933] text-nowrap">${program?.price}</td>
                                         <td className="px-6 text-base font-medium underline text-[#EB3340] underline-offset-2 cursor-pointer">
                                             <Link href="/edit-routines">Edit</Link>
                                         </td>
@@ -73,7 +84,7 @@ const PublishedRoutines = () => {
                 </div>
                 {/* Mobile Design */}
                 <div className="md:hidden grid gap-4">
-                    {programs.map((program, index) => (
+                    {programsById?.map((program, index) => (
                         <div
                             key={index}
                             className="border border-[#E9E9E9] bg-white rounded-[16px] w-full p-5"
@@ -84,11 +95,11 @@ const PublishedRoutines = () => {
                                         Name
                                     </h3>
                                     <h2 className="text-[#292933] text-[14px] leading-[22px] font-normal mt-1">
-                                        {program.name}
+                                        {program?.name}
                                     </h2>
                                 </div>
                                 <h2 className="text-[#292933] text-[13px] font-normal leading-[22px]">
-                                    {program.duration}
+                                25 Min
                                 </h2>
                             </div>
                             <div className="my-4">
@@ -96,11 +107,11 @@ const PublishedRoutines = () => {
                                     Type
                                 </h3>
                                 <h2 className="text-[#292933] text-[14px] leading-[22px] font-normal mt-1">
-                                    {program.type}
+                                    {program?.workoutType}
                                 </h2>
                             </div>
                             <h2 className="text-[#292933] text-[16px] leading-[22px] font-normal mb-4">
-                                {program.price}
+                                {program?.price}
                             </h2>
                             <a
                                 href="/edit"
