@@ -1,15 +1,47 @@
 'use client';
 import Image from 'next/image';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllrogram } from '../store/program/programThunk';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, useStripe } from '@stripe/react-stripe-js';
+import axios from 'axios';
+import LoginModal from '../components/LoginModal';
 
-const ViewAvailableRoutine = () => {
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
+const ViewAvailableRoutineContent = () => {
 	const { programs } = useSelector(state => state?.program);
+	const { uid, user } = useSelector(state => state?.user);
+	const stripe = useStripe();
+	const [open, setOpen] = useState(false);
+	const toggle = state => setOpen(state);
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllrogram());
 	}, []);
+	const handleBuyClick = async program => {
+		if (!uid) {
+			setOpen(true);
+			return;
+		}
+		try {
+			const response = await axios.post('/api/create-checkout-session', {
+				program,
+				userId: uid,
+				email: user?.email,
+			});
+			const session = response.data;
+			// // Redirect to Stripe Checkout
+			const result = await stripe.redirectToCheckout({
+				sessionId: session.id,
+			});
+			if (result.error) {
+				console.error(result.error);
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	};
 	// const programs = [
 	// 	{
 	// 		id: 1,
@@ -137,7 +169,12 @@ const ViewAvailableRoutine = () => {
 											<button className='bg-[#EB3340] w-[127px] sm:w-[185px] h-[39px] sm:h-[56px] rounded-[23px] sm:rounded-[43px] text-white text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
 												View Routine
 											</button>
-											<button className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
+											<button
+												onClick={() =>
+													handleBuyClick(program)
+												}
+												className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'
+											>
 												Buy Now
 											</button>
 										</div>
@@ -147,8 +184,15 @@ const ViewAvailableRoutine = () => {
 					  ))
 					: ''}
 			</div>
+			<LoginModal open={open} toggle={toggle} />
 		</div>
 	);
 };
+
+const ViewAvailableRoutine = () => (
+	<Elements stripe={stripePromise}>
+		<ViewAvailableRoutineContent />
+	</Elements>
+);
 
 export default ViewAvailableRoutine;
