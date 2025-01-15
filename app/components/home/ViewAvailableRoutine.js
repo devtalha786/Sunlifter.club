@@ -9,21 +9,43 @@ import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllrogram } from '@/app/store/program/programThunk';
 import LoginModal from '../LoginModal';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, useStripe } from '@stripe/react-stripe-js';
+import axios from 'axios';
 
-const ViewAvailableRoutine = () => {
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
+const ViewAvailableRoutineContent = () => {
     const { programs } = useSelector(state => state?.program);
-    const { uid } = useSelector(state => state?.user);
+    const { uid,user } = useSelector(state => state?.user);
     const [open, setOpen] = useState(false);
 	const toggle = state => setOpen(state);
+    const stripe = useStripe();
 	const dispatch = useDispatch();
 	useEffect(() => {
 		dispatch(getAllrogram());
 	}, []);
-    const handleBuyClick = () => {
-		if (uid) {
+    const handleBuyClick =async (program) => {
+		if (!uid) {
 			setOpen(true);
 			return
-		  } 
+		  }
+          try {
+            const response = await axios.post('/api/create-checkout-session', {
+                program,
+                userId: uid,
+                email: user?.email,
+            });
+            const session = response.data;
+            // // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id,
+            });
+            if (result.error) {
+                console.error(result.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        } 
 	};
     const typesOptions = ['Type 1', 'Type 2', 'Type 3'];
     const minpriceOptions = ['Min Price 1', 'Min Price 2', 'Min Price 3'];
@@ -146,7 +168,7 @@ const ViewAvailableRoutine = () => {
                                             <button className='bg-[#EB3340] w-[127px] sm:w-[185px] h-[39px] sm:h-[56px] rounded-[23px] sm:rounded-[43px] text-white text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 View Routine
                                             </button>
-                                            <button onClick={handleBuyClick} className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
+                                            <button onClick={() => handleBuyClick(program)} className='w-[109px] sm:w-[148px] h-[39px] sm:h-[56px] border border-[#EAEAEA] rounded-[23px] sm:rounded-[43px] text-black text-[14px] sm:text-[18px] font-medium sm:leading-[20px]'>
                                                 Buy Now
                                             </button>
                                         </div>
@@ -166,4 +188,10 @@ const ViewAvailableRoutine = () => {
     )
 }
 
-export default ViewAvailableRoutine
+const ViewAvailableRoutine = () => (
+	<Elements stripe={stripePromise}>
+		<ViewAvailableRoutineContent />
+	</Elements>
+);
+
+export default ViewAvailableRoutine;
