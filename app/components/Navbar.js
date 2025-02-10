@@ -42,6 +42,7 @@ const Navbar = () => {
         <ul className='hidden lg:flex items-center gap-7'>
           <li><Link href='/' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Home</Link></li>
           <li><Link href='/available-routines' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Available Rountines</Link></li>
+          {uid?<li><Link href='/my-routines' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>My Routines</Link></li>:null}
           <li><Link href='/create-new-program' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>CNP</Link></li>
           <li><Link href='/edit-your-program' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>EYP</Link></li>
           {uid?<li><Link href='/profile' className='text-[#210F0F] text-[16px] font-normal leading-[20px]'>Profile</Link></li>:null}

@@ -227,3 +227,47 @@ export const getProgramPurchaseByUser = createAsyncThunk(
 		}
 	}
 );
+
+export const getMyRoutines = createAsyncThunk(
+	'programs/getMyRoutines',
+	async (uid, thunkAPI) => {
+		try {
+			const programsRef = query(
+				collection(db, 'myRoutines'),
+				where('userId', '==', uid)
+			);
+			const programsSnapshot = await getDocs(programsRef);
+
+			if (!programsSnapshot.empty) {
+				const programsData = await Promise.all(
+					programsSnapshot.docs.map(async docSnapshot => {
+						const programData = docSnapshot.data();
+						const creatorId = programData.createdBy;
+						// Fetch creator's details
+						let creatorDetails = null;
+						if (creatorId) {
+							const creatorRef = doc(db, 'users', creatorId);
+							const creatorDoc = await getDoc(creatorRef);
+							if (creatorDoc.exists()) {
+								creatorDetails = creatorDoc.data();
+							}
+						}
+						return {
+							id: docSnapshot.id,
+							...programData,
+							creator: creatorDetails,
+						};
+					})
+				);
+
+				return programsData;
+			} else {
+				return [];
+			}
+		} catch (error) {
+			console.error('Failed to fetch programs:', error.message);
+			toast.error(error.message || 'Failed to fetch programs');
+			return thunkAPI.rejectWithValue(error.message);
+		}
+	}
+);

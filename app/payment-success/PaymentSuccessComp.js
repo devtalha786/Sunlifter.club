@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 const PaymentSuccessComp = () => {
@@ -17,17 +17,37 @@ const PaymentSuccessComp = () => {
 					const data = response.data;
 					setPaymentDetails(data);
 					if (data.status == 'complete') {
+						const programId = data.metadata.programId;
+						const userId = data.metadata.userId;
 						const paymentDocRef = doc(db, 'payments', sessionId);
 						await setDoc(paymentDocRef, {
-							userId: data.metadata.userId,
-							programId: data.metadata.programId,
+							userId,
+							programId,
 							programcreatorId: data.metadata.programcreatorId,
 							amount: data.amount_total / 100,
 							status: data.status,
 							paymentId: data.id,
-							timestamp: new Date().toISOString(),
+							createdAt: new Date().toISOString(),
 						});
-
+						const programDocRef = doc(db, 'programs', programId);
+						const programSnapshot = await getDoc(programDocRef);
+						if (programSnapshot.exists()) {
+							const program = programSnapshot.data();
+							const myRoutineDocRef = doc(
+								db,
+								'myRoutines',
+								programId
+							);
+							await setDoc(
+								myRoutineDocRef,
+								{
+									userId,
+									...program,
+									purchasedAt: new Date().toISOString(),
+								},
+								{ merge: true }
+							);
+						}
 						console.log('Payment details stored in Firebase');
 					}
 				})

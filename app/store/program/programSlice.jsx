@@ -5,10 +5,12 @@ import {
 	getAllProgramById,
 	getProgramPurchaseByOthers,
 	getProgramPurchaseByUser,
+	getMyRoutines,
 } from './programThunk';
 const initialState = {
 	programs: [],
 	programsById: [],
+	myRoutines: [],
 	programPurchaseByOthers: [],
 	programPurchaseByUser: [],
 	isLoading: false,
@@ -77,6 +79,17 @@ export const programSlice = createSlice({
 				state.isLoading = false;
 			})
 			.addCase(getProgramPurchaseByUser.rejected, state => {
+				state.isLoading = false;
+			})
+			//GetMyRoutines
+			.addCase(getMyRoutines.pending, state => {
+				state.isLoading = true;
+			})
+			.addCase(getMyRoutines.fulfilled, (state, action) => {
+				state.myRoutines = action.payload;
+				state.isLoading = false;
+			})
+			.addCase(getMyRoutines.rejected, state => {
 				state.isLoading = false;
 			});
 	},
