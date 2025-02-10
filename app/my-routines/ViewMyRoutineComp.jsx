@@ -11,8 +11,9 @@ const ViewMyRoutineComp = () => {
 	useEffect(() => {
 		dispatch(getMyRoutines(uid));
 	}, []);
+
 	return (
-		<div>
+		<div className='flex flex-col gap-6 sm:gap-8'>
 			{myRoutines?.map((program, index) => (
 				<div
 					key={index}
