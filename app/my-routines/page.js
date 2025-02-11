@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import DropdownCustom from '../components/DropdownCustom';
 import NumberInput from '../components/NumberInput';
-import ViewMyRoutineComp from './viewMyRoutineComp';
+import ViewMyRoutineComp from './ViewMyRoutineComp';
 
 const page = () => {
 	const typesOptions = ['Type 1', 'Type 2', 'Type 3'];
