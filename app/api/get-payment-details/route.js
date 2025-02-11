@@ -86,39 +86,39 @@
 
 //without storage to get detail
 
-import Stripe from 'stripe';
+// import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function POST(req) {
-	try {
-		const { sessionId } = await req.json();
+// export async function POST(req) {
+// 	try {
+// 		const { sessionId } = await req.json();
 
-		if (!sessionId) {
-			return new Response(
-				JSON.stringify({ error: 'Missing sessionId' }),
-				{
-					status: 400,
-					headers: { 'Content-Type': 'application/json' },
-				}
-			);
-		}
+// 		if (!sessionId) {
+// 			return new Response(
+// 				JSON.stringify({ error: 'Missing sessionId' }),
+// 				{
+// 					status: 400,
+// 					headers: { 'Content-Type': 'application/json' },
+// 				}
+// 			);
+// 		}
 
-		// Retrieve session details from Stripe
-		const session = await stripe.checkout.sessions.retrieve(sessionId);
+// 		// Retrieve session details from Stripe
+// 		const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-		return new Response(JSON.stringify(session), {
-			status: 200,
-			headers: { 'Content-Type': 'application/json' },
-		});
-	} catch (error) {
-		console.error('Stripe API error:', error);
-		return new Response(
-			JSON.stringify({ error: 'Failed to retrieve session details' }),
-			{
-				status: 500,
-				headers: { 'Content-Type': 'application/json' },
-			}
-		);
-	}
-}
+// 		return new Response(JSON.stringify(session), {
+// 			status: 200,
+// 			headers: { 'Content-Type': 'application/json' },
+// 		});
+// 	} catch (error) {
+// 		console.error('Stripe API error:', error);
+// 		return new Response(
+// 			JSON.stringify({ error: 'Failed to retrieve session details' }),
+// 			{
+// 				status: 500,
+// 				headers: { 'Content-Type': 'application/json' },
+// 			}
+// 		);
+// 	}
+// }
